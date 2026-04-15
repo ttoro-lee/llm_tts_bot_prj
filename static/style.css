@@ -30,6 +30,48 @@ body {
   height: 100vh;
 }
 
+/* ── Drawer Overlay (mobile) ───────────────────────── */
+.drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 199;
+}
+
+/* ── Mobile Topbar ─────────────────────────────────── */
+.mobile-topbar {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.topbar-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.hamburger-btn {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  line-height: 1;
+  transition: background 0.2s;
+}
+
+.hamburger-btn:hover { background: var(--bg3); }
+
 /* ── Sidebar ───────────────────────────────────────── */
 .sidebar {
   width: 270px;
@@ -49,9 +91,25 @@ body {
   gap: 10px;
 }
 
+.sidebar-close {
+  display: none;
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.sidebar-close:hover { color: var(--text); background: var(--bg3); }
+
 .logo-dot {
   width: 10px;
   height: 10px;
+  flex-shrink: 0;
   border-radius: 50%;
   background: var(--accent2);
   box-shadow: 0 0 8px var(--accent2);
@@ -235,9 +293,9 @@ textarea:focus { border-color: var(--accent); }
   max-width: 92%;
 }
 
-.message.user     { align-self: flex-end; }
+.message.user      { align-self: flex-end; }
 .message.assistant { align-self: flex-start; }
-.message.error    { align-self: flex-start; }
+.message.error     { align-self: flex-start; }
 
 .bubble {
   padding: 10px 14px;
@@ -305,7 +363,7 @@ textarea:focus { border-color: var(--accent); }
   transition: border-color 0.2s;
 }
 
-#chat-input:focus   { border-color: var(--accent); }
+#chat-input:focus    { border-color: var(--accent); }
 #chat-input:disabled { opacity: 0.5; }
 
 .send-btn {
@@ -324,3 +382,93 @@ textarea:focus { border-color: var(--accent); }
 .send-btn:hover    { background: var(--accent2); }
 .send-btn:active   { transform: scale(0.97); }
 .send-btn:disabled { background: var(--border); cursor: not-allowed; }
+
+/* ══════════════════════════════════════════════════════
+   Mobile  (≤ 767px)
+   레이아웃: 상단 시각화 → 채팅 내역 → 하단 고정 입력창
+   설정: 좌측 드로어 오버레이
+   ══════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+  body { height: 100dvh; overflow: hidden; }
+
+  .layout {
+    flex-direction: column;
+    height: 100dvh;
+  }
+
+  /* Drawer overlay */
+  .drawer-overlay.show { display: block; }
+
+  /* Sidebar becomes fixed left drawer */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 80%;
+    max-width: 300px;
+    height: 100%;
+    height: 100dvh;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.28s ease;
+    border-right: 1px solid var(--border);
+    /* keep padding/flex from base styles */
+  }
+
+  .sidebar.open { transform: translateX(0); }
+
+  .sidebar-close { display: block; }
+
+  /* Mobile topbar */
+  .mobile-topbar { display: flex; }
+
+  /* Main: fixed height for visualizer only */
+  .main {
+    height: auto;
+    flex-shrink: 0;
+  }
+
+  .visualizer-wrap {
+    flex: none;
+    height: 220px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Hide desktop input — replaced by fixed input below */
+  .chat-input-area {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 10px 12px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+  }
+
+  /* Chat panel fills remaining space */
+  .chat-panel {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    min-width: unset;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Extra bottom padding so messages aren't hidden behind fixed input */
+  .chat-messages {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  }
+
+  /* Slightly larger tap targets */
+  .send-btn {
+    padding: 10px 16px;
+  }
+
+  #chat-input {
+    font-size: 16px; /* prevents iOS auto-zoom on focus */
+  }
+}

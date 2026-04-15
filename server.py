@@ -11,8 +11,18 @@ load_dotenv()
 
 app = FastAPI()
 
+
+def _get_default_model() -> str:
+    try:
+        client = ollama.Client(host=os.getenv("OLLAMA_HOST") or None)
+        models = client.list().models
+        return models[0].model if models else ""
+    except Exception:
+        return ""
+
+
 _config = {
-    "model": os.getenv("LLM_MODEL", "gemma4"),
+    "model": _get_default_model(),
     "system_prompt": os.getenv("SYSTEM_PROMPT", ""),
     "tts_voice": os.getenv("TTS_VOICE", "ko-KR-SunHiNeural"),
 }
@@ -56,6 +66,7 @@ def update_config(data: ConfigUpdate):
 class ChatRequest(BaseModel):
     message: str
     history: list[dict] = []
+    model: str | None = None
 
 
 @app.post("/api/chat")
@@ -70,7 +81,7 @@ async def chat(req: ChatRequest):
     messages.append({"role": "user", "content": req.message})
 
     llm = OllamaLLM(
-        model=_config["model"],
+        model=req.model or _config["model"],
         host=os.getenv("OLLAMA_HOST") or None,
     )
     try:

@@ -7,59 +7,89 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="layout">
+  <div id="app" class="layout">
 
-    <!-- Left Sidebar -->
-    <aside class="sidebar">
+    <!-- Drawer overlay (mobile only) -->
+    <div class="drawer-overlay" :class="{ show: showSettings }" @click="showSettings = false"></div>
+
+    <!-- Left Sidebar / Settings Drawer -->
+    <aside class="sidebar" :class="{ open: showSettings }">
       <div class="sidebar-header">
         <span class="logo-dot"></span>
         <h1>LLM TTS Bot</h1>
+        <button class="sidebar-close" @click="showSettings = false" title="닫기">&#10005;</button>
       </div>
 
       <div class="sidebar-section">
         <label class="section-label">모델</label>
         <div class="model-row">
-          <select id="model-select"></select>
-          <button id="refresh-models" class="icon-btn" title="새로고침">&#8635;</button>
+          <select v-model="selectedModel">
+            <option v-for="m in models" :key="m" :value="m">{{ m }}</option>
+          </select>
+          <button class="icon-btn" title="새로고침" @click="loadModels">&#8635;</button>
         </div>
       </div>
 
       <div class="sidebar-section grow">
         <label class="section-label">시스템 프롬프트</label>
-        <textarea id="system-prompt" placeholder="시스템 프롬프트를 입력하세요..."></textarea>
+        <textarea v-model="systemPrompt" placeholder="시스템 프롬프트를 입력하세요..."></textarea>
       </div>
 
-      <button id="save-config" class="primary-btn">적용</button>
+      <button class="primary-btn" @click="saveConfig">적용</button>
 
-      <div id="toast" class="toast"></div>
+      <div class="toast" :class="{ show: toastVisible }">{{ toastMsg }}</div>
     </aside>
 
     <!-- Center: Visualizer + Input -->
     <main class="main">
+
+      <!-- Mobile-only topbar -->
+      <div class="mobile-topbar">
+        <button class="hamburger-btn" @click="showSettings = true" title="설정">&#9776;</button>
+        <div class="topbar-title">
+          <span class="logo-dot"></span>
+          <span>LLM TTS Bot</span>
+        </div>
+      </div>
+
       <div class="visualizer-wrap">
-        <canvas id="visualizer"></canvas>
-        <div id="status-label" class="status-label">대기 중</div>
+        <canvas id="visualizer" ref="canvasEl"></canvas>
+        <div class="status-label">{{ status }}</div>
       </div>
 
       <div class="chat-input-area">
         <input
-          type="text"
           id="chat-input"
+          type="text"
+          v-model="chatInput"
           placeholder="메시지를 입력하세요..."
           autocomplete="off"
+          :disabled="inputDisabled"
+          @keydown.enter.prevent="sendMessage"
+          ref="inputEl"
         >
-        <button id="send-btn" class="send-btn">전송</button>
+        <button class="send-btn" :disabled="inputDisabled" @click="sendMessage">전송</button>
       </div>
     </main>
 
     <!-- Right: Chat History -->
     <aside class="chat-panel">
       <div class="chat-panel-header">대화 내역</div>
-      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-messages" ref="messagesEl">
+        <div
+          v-for="msg in messages"
+          :key="msg.id"
+          class="message"
+          :class="msg.role === 'loading' ? 'assistant' : msg.role"
+        >
+          <div class="bubble" v-html="msg.html"></div>
+        </div>
+      </div>
     </aside>
 
   </div>
 
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
