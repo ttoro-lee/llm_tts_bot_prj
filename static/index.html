@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM TTS Bot</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="layout">
+
+    <!-- Left Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span class="logo-dot"></span>
+        <h1>LLM TTS Bot</h1>
+      </div>
+
+      <div class="sidebar-section">
+        <label class="section-label">모델</label>
+        <div class="model-row">
+          <select id="model-select"></select>
+          <button id="refresh-models" class="icon-btn" title="새로고침">&#8635;</button>
+        </div>
+      </div>
+
+      <div class="sidebar-section grow">
+        <label class="section-label">시스템 프롬프트</label>
+        <textarea id="system-prompt" placeholder="시스템 프롬프트를 입력하세요..."></textarea>
+      </div>
+
+      <button id="save-config" class="primary-btn">적용</button>
+
+      <div id="toast" class="toast"></div>
+    </aside>
+
+    <!-- Center: Visualizer + Input -->
+    <main class="main">
+      <div class="visualizer-wrap">
+        <canvas id="visualizer"></canvas>
+        <div id="status-label" class="status-label">대기 중</div>
+      </div>
+
+      <div class="chat-input-area">
+        <input
+          type="text"
+          id="chat-input"
+          placeholder="메시지를 입력하세요..."
+          autocomplete="off"
+        >
+        <button id="send-btn" class="send-btn">전송</button>
+      </div>
+    </main>
+
+    <!-- Right: Chat History -->
+    <aside class="chat-panel">
+      <div class="chat-panel-header">대화 내역</div>
+      <div class="chat-messages" id="chat-messages"></div>
+    </aside>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
