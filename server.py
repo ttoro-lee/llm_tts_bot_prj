@@ -104,3 +104,8 @@ async def chat(req: ChatRequest):
 # ── Static (must be last) ─────────────────────────────────────────────────────
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("SERVER_PORT", 8000))
+    uvicorn.run("server:app", host="0.0.0.0", port=port, reload=True)
